@@ -40,4 +40,4 @@ for filename in os.listdir('./commands'):
     
 
 if __name__ == "__main__":
-    bot.run(jdata['TOKEN'])
+    bot.run(os.getenv('TOKEN') or jdata['TOKEN'])
