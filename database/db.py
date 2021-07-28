@@ -103,7 +103,7 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
 
 def get_group_point() -> Tuple[Union[List[int], None], Error]:
     """
-    Return a list of int where the `i`-th value is the point of the group `i`
+    Return a list of int where the `i`-th value is the point of group `i`
 
     e.g. res[5] is the point of group 5
     """
@@ -130,3 +130,4 @@ def get_group_point() -> Tuple[Union[List[int], None], Error]:
     except sqlite3.Error as err:
         handle_error(err)
         return (None, ' '.join(err.args))
+
