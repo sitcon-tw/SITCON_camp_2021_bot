@@ -100,3 +100,33 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
         handle_error(err)
         return (None, ' '.join(err.args))
 
+
+def get_group_point() -> Tuple[Union[List[int], None], Error]:
+    """
+    Return a list of int where the `i`-th value is the point of the group `i`
+
+    e.g. res[5] is the point of group 5
+    """
+
+    sql = '''
+        SELECT `used_by` AS `group`, SUM(`point`) AS `point`
+        FROM `point_code`
+        WHERE `used_by` > 0
+        GROUP BY `used_by`
+        ORDER BY `used_by` ASC
+    '''
+
+    try:
+        cur = con.execute(sql)
+        rows = cur.fetchall()
+        con.commit()
+
+        res = [0] * 11
+        for group, point in rows:
+            res[group] = point
+
+        return (res, None)
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))
