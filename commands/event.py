@@ -3,6 +3,7 @@ from discord.ext import commands
 import json
 
 from core.classes import Cog_extension
+from databse import db
 
 with open('setting.json', mode='r', encoding='utf-8') as jfile:
     jdata = json.load(jfile)
@@ -77,33 +78,18 @@ class Event(Cog_extension):
             if flag == False:
                 await msg.channel.send('沒有組別喔QwQ')
 
-        # point_codes 是 list，其中第 0 項是十分的兌換序號，第 1 項是二十分的兌換序號，以此類推。        
-        elif msg.content in point_codes[0] and msg.author != self.bot.user and msg.channel == self.bot.get_channel(int(jdata['CHANNEL_MAINROOM'])):
-            point_codes[0].remove(msg.content)
-            used_point_code.append(msg.content)
-            with open('pointCode.json', mode='w', encoding='utf-8') as f:
-                json.dump(point_codes, f)
-            #for i in groups:
-                #if i in msg.author.roles:
-                    # TODO 實作讀取、寫入 grades.json的功能 
-
-            await msg.channel.send('葛萊芬多加十分!')
-        elif msg.content in point_codes[1] and msg.author != self.bot.user and msg.channel == self.bot.get_channel(int(jdata['CHANNEL_MAINROOM'])):
-            point_codes[1].remove(msg.content)
-            used_point_code.append(msg.content)
-            with open('pointCode.json', mode='w', encoding='utf-8') as f:
-                json.dump(point_codes, f)
-            await msg.channel.send('葛萊芬多加二十分!')
-        elif msg.content in point_codes[2] and msg.author != self.bot.user and msg.channel == self.bot.get_channel(int(jdata['CHANNEL_MAINROOM'])):
-            point_codes[2].remove(msg.content)
-            used_point_code.append(msg.content)
-            with open('pointCode.json', mode='w', encoding='utf-8') as f:
-                json.dump(point_codes, f)
-            await msg.channel.send('葛萊芬多加三十分!')
-        elif msg.content in used_point_code and msg.author != self.bot.user and msg.channel == self.bot.get_channel(int(jdata['CHANNEL_MAINROOM'])):
-            await msg.channel.send('這序號已經使用過囉!')
         elif msg.author != self.bot.user and msg.channel == self.bot.get_channel(int(jdata['CHANNEL_MAINROOM'])):
-            await msg.channel.send('輸入的序號有錯喔QQ')
+            res, err = db.use_point_code(msg.content, 1) # TODO: user group
+
+            if err is not None:
+                if err == 'not exists':
+                    await msg.channel.send('輸入的序號有錯喔QQ')
+                elif err == 'used':
+                    await msg.channel.send('這序號已經使用過囉！')
+                else:
+                    await msg.channel.send('發生了點錯誤')
+            else:
+                await msg.channel.send(f'葛萊芬多加 {res} 分！')
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

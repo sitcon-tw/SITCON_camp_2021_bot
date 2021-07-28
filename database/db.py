@@ -11,8 +11,11 @@ sql_init = open('database/init.sql', 'r').read()
 con.execute(sql_init)
 con.commit()
 
+Code = str
+Point = int
+UsedBy = int
 Error = Union[str, None]
-CodePoint = Tuple[str, int, int]
+CodePoint = Tuple[Code, Point, UsedBy]
 
 
 def handle_error(err: sqlite3.Error) -> None:
@@ -57,22 +60,27 @@ def get_point_code() -> Tuple[Union[None, List[CodePoint]], Error]:
         return (None, ' '.join(err.args))
 
 
-def use_point_code(code: str, group: int) -> Tuple[None, Error]:
-    sql_check_not_used = 'SELECT 1 FROM `point_code` WHERE `code` = ? AND used_by = 0'
+def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
+    sql_check_not_used = 'SELECT `used_by`, `point` FROM `point_code` WHERE `code` = ?'
     sql_update = 'UPDATE `point_code` SET `used_by` = ? WHERE `code` = ?'
 
     try:
-        cur = con.execute(sql_check_not_used, (code))
+        cur = con.execute(sql_check_not_used, (code, ))
         res = cur.fetchone()
         con.commit()
 
-        if len(res) == 1:
-            return (None, 'Code already used!')
+        if res is None:
+            return (None, 'not exists')
+
+        used_by, point = res
+
+        if used_by > 0:
+            return (None, 'used')
 
         con.execute(sql_update, (group, code))
         con.commit()
 
-        return (None, None)
+        return (point, None)
 
     except sqlite3.Error as err:
         handle_error(err)
@@ -89,7 +97,7 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
         con.commit()
 
         if len(res) == 1:
-            return (None, 'Code already used!')
+            return (None, '這序號已經使用過囉！')
 
         con.execute(sql_delete, (code))
         con.commit()
