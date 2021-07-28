@@ -3,15 +3,11 @@ from discord.ext import commands
 import json
 
 from core.classes import Cog_extension
-from databse import db
+from database import db
 
 with open('setting.json', mode='r', encoding='utf-8') as jfile:
     jdata = json.load(jfile)
 
-point_codes = []
-used_point_code = []
-with open('pointCode.json', mode='r', encoding='utf-8') as pointCode:
-    point_codes = json.load(pointCode)
 
 class Event(Cog_extension):
     @commands.Cog.listener()
