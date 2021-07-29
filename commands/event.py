@@ -121,7 +121,7 @@ class Event(Cog_extension):
             await ctx.send(message.POINT_ADDED.format(group=group_id, point=res))
 
     @commands.command()
-    @commands.has_any_role('管理員')  # TODO: allowed roles
+    @commands.has_any_role('卍序號a支配者卍')
     async def gen(self, ctx, point: int, amount: int):
         res, err = db.gen_point_code(point, amount)
         if err is not None:
@@ -130,7 +130,7 @@ class Event(Cog_extension):
             await ctx.send(message.CODE_GENERATED.format(amount=amount, point=point, codes='\n'.join(res)))
 
     @commands.command()
-    @commands.has_any_role('管理員')  # TODO: allowed roles
+    @commands.has_any_role('卍序號a支配者卍')
     async def delete(self, ctx, code: str):
         _, err = db.delete_point_code(code)
         if err is not None:
