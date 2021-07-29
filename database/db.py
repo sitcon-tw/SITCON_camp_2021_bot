@@ -122,7 +122,7 @@ def get_group_point() -> Tuple[Union[List[Tuple[int, int]], None], Error]:
         FROM `point_code`
         WHERE `used_by` > 0
         GROUP BY `used_by`
-        ORDER BY `point` DESC
+        ORDER BY `point` DESC, `group` ASC
     '''
 
     try:
