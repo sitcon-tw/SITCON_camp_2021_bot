@@ -61,16 +61,21 @@ class Event(Cog_extension):
         if user.bot:
             return
 
+        channel = self.bot.get_channel(int(jdata['CHANNEL_MAINROOM']))
+
         # if member already has one role, remove it and do nothing
-        roles = set(user.roles).intersection(self.roles)
+        roles = list(set(user.roles).intersection(self.roles))
         if len(roles) == 1:
+            await channel.send(message.ROLE_ALREADY_EXISTS.format(mention=user.mention, role_name=roles[0].name))
             await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
             return
 
         guild = self.bot.get_guild(data.guild_id)
         for i in range(1, 10):
             if data.emoji.name == jdata[f'CHANNEL_EMOJI_{i}']:
-                await user.add_roles(guild.get_role(jdata[f'CHANNEL_ROLE_{i}']))
+                role = guild.get_role(jdata[f'CHANNEL_ROLE_{i}'])
+                await user.add_roles(role)
+                await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
                 await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
 
     @commands.command()

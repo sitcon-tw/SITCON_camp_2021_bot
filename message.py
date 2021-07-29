@@ -6,6 +6,8 @@ CODE_GENERATED = '''已產生 {amount} 組 {point} 分的序號：
 {codes}
 ```'''
 
+ROLE_ALREADY_EXISTS = '{mention} 你已經有 {role_name} 的身分別囉！'
+ROLE_ADDED = '{mention} 已把你加到 {role_name} 囉！'
 ROLE_NOT_EXISTS = '你是哪個組別ㄉ？'
 ROLE_TOO_MANY = '你的組別也太多...'
 
