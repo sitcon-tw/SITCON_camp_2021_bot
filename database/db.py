@@ -8,7 +8,7 @@ from utils import gen_code
 con = sqlite3.connect('database/sqlite.db')
 
 sql_init = open('database/init.sql', 'r').read()
-con.execute(sql_init)
+con.executescript(sql_init)
 con.commit()
 
 Code = str
@@ -140,6 +140,38 @@ def get_group_point() -> Tuple[Union[List[Tuple[int, int]], None], Error]:
                 res.append((i, 0))
 
         return (res, None)
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))
+
+
+def get_group_selection_message_id() -> Tuple[Union[int, None], Error]:
+    sql = 'SELECT `id` FROM `message` LIMIT 1'
+
+    try:
+        cur = con.execute(sql)
+        row = cur.fetchone()
+        con.commit()
+
+        if row is None:
+            return (None, 'not exists')
+
+        return (row[0], None)
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))
+
+
+def store_group_selection_message_id(id: int) -> Tuple[None, Error]:
+    sql = 'INSERT INTO `message` VALUES (?)'
+
+    try:
+        con.execute(sql, (id, ))
+        con.commit()
+
+        return (None, None)
 
     except sqlite3.Error as err:
         handle_error(err)

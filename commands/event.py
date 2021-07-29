@@ -26,11 +26,19 @@ class Event(Cog_extension):
         # get group reactions
         self.emojis = [jdata[f'CHANNEL_EMOJI_{i}'] for i in range(1, 10)]
 
-        # send banner
-        channel = self.bot.get_channel(int(jdata['CHANNEL_MAINROOM']))
-        self.group_selection_message = await channel.send(message.BANNER)
-        for emoji in self.emojis:
-            await self.group_selection_message.add_reaction(emoji)
+        res, err = db.get_group_selection_message_id()
+        channel = self.bot.get_channel(jdata['CHANNEL_MAINROOM'])
+        if err is not None:
+            if err == 'not exists':
+                # send banner if message not exists
+                self.group_selection_message = await channel.send(message.BANNER)
+                db.store_group_selection_message_id(self.group_selection_message.id)
+                for emoji in self.emojis:
+                    await self.group_selection_message.add_reaction(emoji)
+            else:
+                await channel.send(message.UNKNOWN_ERROR)
+        else:
+            self.group_selection_message = await channel.fetch_message(res)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
