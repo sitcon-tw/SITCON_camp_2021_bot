@@ -68,14 +68,13 @@ def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
         cur = con.execute(sql_check_not_used, (code, ))
         res = cur.fetchone()
         con.commit()
-        print(res)
 
         if res is None:
             return (None, 'not exists')
 
         used_by, point = res
 
-        if used_by > 0:
+        if used_by > 0 or used_by == -1:
             return (None, 'used')
 
         con.execute(sql_update, (group, code))
@@ -89,18 +88,18 @@ def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
 
 
 def delete_point_code(code: str) -> Tuple[None, Error]:
-    sql_check_not_used = 'SELECT 1 FROM `point_code` WHERE `code` = ? AND used_by = 0'
+    sql_check_not_used = 'SELECT 1 FROM `point_code` WHERE `code` = ? AND `used_by` = 0'
     sql_delete = 'UPDATE `point_code` SET `used_by` = -1 WHERE `code` = ?'
 
     try:
-        cur = con.execute(sql_check_not_used, (code))
+        cur = con.execute(sql_check_not_used, (code, ))
         res = cur.fetchone()
         con.commit()
 
-        if len(res) == 1:
+        if res is None:
             return (None, 'used')
 
-        con.execute(sql_delete, (code))
+        con.execute(sql_delete, (code, ))
         con.commit()
 
         return (None, None)
