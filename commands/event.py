@@ -20,7 +20,8 @@ class Event(Cog_extension):
         group_roles = [jdata[f'CHANNEL_ROLE_{i}'] for i in range(1, 10)]
         all_roles = [role for guild in self.bot.guilds for role in guild.roles]
 
-        self.roles = list(filter(lambda role: role.id in group_roles, all_roles))
+        roles = list(filter(lambda role: role.id in group_roles, all_roles))
+        self.roles = sorted(roles, key=lambda val: group_roles.index(val.id))
 
         # get group reactions
         self.emojis = [jdata[f'CHANNEL_EMOJI_{i}'] for i in range(1, 10)]
@@ -70,13 +71,13 @@ class Event(Cog_extension):
             await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
             return
 
+        group_id = self.emojis.index(data.emoji.name) + 1
+
         guild = self.bot.get_guild(data.guild_id)
-        for i in range(1, 10):
-            if data.emoji.name == jdata[f'CHANNEL_EMOJI_{i}']:
-                role = guild.get_role(jdata[f'CHANNEL_ROLE_{i}'])
-                await user.add_roles(role)
-                await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
-                await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
+        role = guild.get_role(jdata[f'CHANNEL_ROLE_{group_id}'])
+        await user.add_roles(role)
+        await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
+        await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
 
     @commands.command()
     async def hello(self, ctx, member: discord.Member = None):
