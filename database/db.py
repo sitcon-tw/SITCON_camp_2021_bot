@@ -3,7 +3,7 @@ import sys
 import traceback
 from typing import List, Tuple, Union
 
-from utils import gen_code 
+from utils import gen_code
 
 con = sqlite3.connect('database/sqlite.db')
 
@@ -25,7 +25,7 @@ def handle_error(err: sqlite3.Error) -> None:
     print(traceback.print_exception(exc_type, exc_value, exc_tb))
 
 
-def gen_point_code(point: int = 0, amount: int = 1) -> Tuple[None, Error]:
+def gen_point_code(point: int = 0, amount: int = 1) -> Tuple[Union[List[str], None], Error]:
     sql = 'INSERT INTO `point_code`(`code`, `point`) VALUES (?, ?)'
 
     # keep trying until codes are unique
@@ -35,7 +35,7 @@ def gen_point_code(point: int = 0, amount: int = 1) -> Tuple[None, Error]:
         try:
             con.executemany(sql, codes)
             con.commit()
-            return (None, None)
+            return ([code[0] for code in codes], None)
 
         except sqlite3.IntegrityError:
             con.rollback()
@@ -68,6 +68,7 @@ def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
         cur = con.execute(sql_check_not_used, (code, ))
         res = cur.fetchone()
         con.commit()
+        print(res)
 
         if res is None:
             return (None, 'not exists')
@@ -97,7 +98,7 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
         con.commit()
 
         if len(res) == 1:
-            return (None, '這序號已經使用過囉！')
+            return (None, 'used')
 
         con.execute(sql_delete, (code))
         con.commit()
@@ -109,11 +110,11 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
         return (None, ' '.join(err.args))
 
 
-def get_group_point() -> Tuple[Union[List[int], None], Error]:
+def get_group_point() -> Tuple[Union[List[Tuple[int, int]], None], Error]:
     """
-    Return a list of int where the `i`-th value is the point of group `i`
+    Return a list of tuple where the `i`-th value is the rank `i+1`-th (group, point)
 
-    e.g. res[5] is the point of group 5
+    e.g. if res[0] == (5, 100), then group 5 is currently at rank 1 with 100 points
     """
 
     sql = '''
@@ -121,7 +122,7 @@ def get_group_point() -> Tuple[Union[List[int], None], Error]:
         FROM `point_code`
         WHERE `used_by` > 0
         GROUP BY `used_by`
-        ORDER BY `used_by` ASC
+        ORDER BY `point` DESC
     '''
 
     try:
@@ -129,9 +130,15 @@ def get_group_point() -> Tuple[Union[List[int], None], Error]:
         rows = cur.fetchall()
         con.commit()
 
-        res = [0] * 11
-        for group, point in rows:
-            res[group] = point
+        res = []
+        groups = set()
+        for row in rows:
+            res.append(row)
+            groups.add(row[0])
+
+        for i in range(1, 10):
+            if i not in groups:
+                res.append((i, 0))
 
         return (res, None)
 
