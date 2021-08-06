@@ -176,3 +176,25 @@ def store_group_selection_message_id(id: int) -> Tuple[None, Error]:
     except sqlite3.Error as err:
         handle_error(err)
         return (None, ' '.join(err.args))
+
+
+def log_submission(
+    group_id: int,
+    task_id: str,
+    password: str,
+    is_correct: bool
+) -> Tuple[None, Error]:
+    sql = '''
+        INSERT INTO `submissions`(`group_id`, `task_id`, `password`, `is_correct`)
+        VALUES (?, ?, ?, ?)
+    '''
+
+    try:
+        con.execute(sql, (group_id, task_id, password, is_correct, ))
+        con.commit()
+
+        return (None, None)
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))

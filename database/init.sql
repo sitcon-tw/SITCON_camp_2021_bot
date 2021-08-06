@@ -7,3 +7,12 @@ CREATE TABLE IF NOT EXISTS `point_code` (
 CREATE TABLE IF NOT EXISTS `message` (
   id INT PRIMARY KEY
 );
+
+CREATE TABLE IF NOT EXISTS `submissions` (
+  id INT PRIMARY KEY,
+  group_id INT NOT NULL,
+  task_id TEXT NOT NULL,
+  password TEXT,
+  is_correct INT NOT NULL,
+  submitted_at DATETIME DEFAULT (DATETIME('now', 'localtime'))
+);

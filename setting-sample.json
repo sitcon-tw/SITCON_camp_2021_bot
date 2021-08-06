@@ -2,6 +2,16 @@
     "TOKEN": "",
     "CHANNEL_MAINROOM": 869862683778887691,
 
+    "CHANNEL_BOT_1": 872896456313434149,
+    "CHANNEL_BOT_2": 872896703588622413,
+    "CHANNEL_BOT_3": 0,
+    "CHANNEL_BOT_4": 0,
+    "CHANNEL_BOT_5": 0,
+    "CHANNEL_BOT_6": 0,
+    "CHANNEL_BOT_7": 0,
+    "CHANNEL_BOT_8": 0,
+    "CHANNEL_BOT_9": 0,
+
     "CHANNEL_ROLE_1": 868602900455256084,
     "CHANNEL_ROLE_2": 868603672739864606,
     "CHANNEL_ROLE_3": 868603737176944730,
@@ -20,7 +30,5 @@
     "CHANNEL_EMOJI_6": "6️⃣",
     "CHANNEL_EMOJI_7": "7️⃣",
     "CHANNEL_EMOJI_8": "8️⃣",
-    "CHANNEL_EMOJI_9": "9️⃣",
-
-    "pic": "D:\\system\\working_space\\SITCON_camp_discordBot\\pic\\wait.png"
+    "CHANNEL_EMOJI_9": "9️⃣"
 }

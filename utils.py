@@ -13,3 +13,7 @@ def get_group_id_by_role(role: Role) -> int:
         return {v: k for k, v in CONFIG['CHANNEL_ROLE'].items()}[int(role.id)]
     except:
         return 0
+
+
+def is_in_bot_channel(ctx) -> bool:
+    return ctx.channel.id in CONFIG['CHANNEL_BOT'].values()
