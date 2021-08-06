@@ -1,6 +1,7 @@
 from discord import Role
 from os import urandom
-import json
+
+from config import CONFIG
 
 
 def gen_code() -> str:
@@ -8,11 +9,7 @@ def gen_code() -> str:
 
 
 def get_group_id_by_role(role: Role) -> int:
-    with open('setting.json', mode='r', encoding='utf-8') as jfile:
-        jdata = json.load(jfile)
-
-    for i in range(1, 11):
-        if jdata[f'CHANNEL_ROLE_{i}'] == int(role.id):
-            return i
-
-    return 0
+    try:
+        return {v: k for k, v in CONFIG['CHANNEL_ROLE'].items()}[int(role.id)]
+    except:
+        return 0

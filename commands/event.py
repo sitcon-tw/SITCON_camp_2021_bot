@@ -1,14 +1,11 @@
 import discord
 from discord.ext import commands
-import json
 
+from config import CONFIG
 from core.classes import Cog_extension
 from database import db
 from utils import get_group_id_by_role
 import message
-
-with open('setting.json', mode='r', encoding='utf-8') as jfile:
-    jdata = json.load(jfile)
 
 
 class Event(Cog_extension):
@@ -17,17 +14,19 @@ class Event(Cog_extension):
         print('>>SITCON camp Ready!<<')
 
         # get all group roles
-        group_roles = [jdata[f'CHANNEL_ROLE_{i}'] for i in range(1, 10)]
+        # TODO: refactor the following line
+        group_roles = [CONFIG['CHANNEL_ROLE'][i] for i in range(1, 10)]
         all_roles = [role for guild in self.bot.guilds for role in guild.roles]
 
         roles = list(filter(lambda role: role.id in group_roles, all_roles))
         self.roles = sorted(roles, key=lambda val: group_roles.index(val.id))
 
         # get group reactions
-        self.emojis = [jdata[f'CHANNEL_EMOJI_{i}'] for i in range(1, 10)]
+        # TODO: refactor the following line
+        self.emojis = [CONFIG['CHANNEL_EMOJI'][i] for i in range(1, 10)]
 
         res, err = db.get_group_selection_message_id()
-        channel = self.bot.get_channel(jdata['CHANNEL_MAINROOM'])
+        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
         if err is not None:
             if err == 'not exists':
                 # send banner if message not exists
@@ -43,13 +42,13 @@ class Event(Cog_extension):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         print(message.MEMBER_JOINED.format(member=member))
-        channel = self.bot.get_channel(int(jdata['CHANNEL_MAINROOM']))
+        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
         await channel.send(message.MEMBER_JOINED.format(member=member))
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         print(message.MEMBER_QUIT.format(member=member))
-        channel = self.bot.get_channel(int(jdata['CHANNEL_MAINROOM']))
+        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
         await channel.send(message.MEMBER_QUIT.format(member=member))
 
     @commands.Cog.listener()
@@ -70,7 +69,7 @@ class Event(Cog_extension):
         if user.bot:
             return
 
-        channel = self.bot.get_channel(int(jdata['CHANNEL_MAINROOM']))
+        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
 
         # if member already has one role, remove it and do nothing
         roles = list(set(user.roles).intersection(self.roles))
@@ -82,7 +81,7 @@ class Event(Cog_extension):
         group_id = self.emojis.index(data.emoji.name) + 1
 
         guild = self.bot.get_guild(data.guild_id)
-        role = guild.get_role(jdata[f'CHANNEL_ROLE_{group_id}'])
+        role = guild.get_role(CONFIG['CHANNEL_ROLE'][group_id])
         await user.add_roles(role)
         await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
         await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)

@@ -1,9 +1,8 @@
 from discord.ext import commands
-import json
 import os
 
-with open('setting.json', mode='r', encoding='utf-8') as jfile:
-    jdata = json.load(jfile)
+from config import CONFIG
+
 
 bot = commands.Bot(command_prefix='/')
 
@@ -43,4 +42,4 @@ if __name__ == '__main__':
         if filename.endswith('.py'):
             bot.load_extension(f'commands.{filename[:-3]}')
 
-    bot.run(os.getenv('TOKEN') or jdata['TOKEN'])
+    bot.run(os.getenv('TOKEN') or CONFIG['TOKEN'])
