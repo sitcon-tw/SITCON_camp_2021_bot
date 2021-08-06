@@ -176,4 +176,3 @@ def store_group_selection_message_id(id: int) -> Tuple[None, Error]:
     except sqlite3.Error as err:
         handle_error(err)
         return (None, ' '.join(err.args))
-

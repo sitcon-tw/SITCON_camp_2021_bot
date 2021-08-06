@@ -1,4 +1,3 @@
-import discord 
 from discord.ext import commands
 import json
 import os
@@ -8,6 +7,8 @@ with open('setting.json', mode='r', encoding='utf-8') as jfile:
 
 bot = commands.Bot(command_prefix='/')
 
+
+# TODO: permissions
 @bot.command()
 async def load(ctx, extension):
     if os.path.isfile(f'./commands/{extension}.py'):
@@ -15,8 +16,9 @@ async def load(ctx, extension):
         await ctx.send(f'loaded extension \'{extension}\'!')
     else:
         await ctx.send(f'extension \'{extension}\' not found!')
-    
 
+
+# TODO: permissions
 @bot.command()
 async def unload(ctx, extension):
     if os.path.isfile(f'./commands/{extension}.py'):
@@ -25,6 +27,8 @@ async def unload(ctx, extension):
     else:
         await ctx.send(f'extension \'{extension}\' not found!')
 
+
+# TODO: permissions
 @bot.command()
 async def reload(ctx, extension):
     if os.path.isfile(f'./commands/{extension}.py'):
@@ -33,11 +37,10 @@ async def reload(ctx, extension):
     else:
         await ctx.send(f'extension \'{extension}\' not found!')
 
-for filename in os.listdir('./commands'):
-    print(filename)
-    if filename.endswith('.py'):
-        bot.load_extension(f'commands.{filename[:-3]}')
-    
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    for filename in os.listdir('./commands'):
+        if filename.endswith('.py'):
+            bot.load_extension(f'commands.{filename[:-3]}')
+
     bot.run(os.getenv('TOKEN') or jdata['TOKEN'])

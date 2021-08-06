@@ -14,7 +14,7 @@ with open('setting.json', mode='r', encoding='utf-8') as jfile:
 class Event(Cog_extension):
     @commands.Cog.listener()
     async def on_ready(self):
-        print(">>SITCON camp Ready!<<")
+        print('>>SITCON camp Ready!<<')
 
         # get all group roles
         group_roles = [jdata[f'CHANNEL_ROLE_{i}'] for i in range(1, 10)]

@@ -16,4 +16,3 @@ def get_group_id_by_role(role: Role) -> int:
             return i
 
     return 0
-
