@@ -40,29 +40,6 @@ class Event(Cog_extension):
             self.group_selection_message = await channel.fetch_message(res)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
-        print(message.MEMBER_JOINED.format(member=member))
-        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
-        await channel.send(message.MEMBER_JOINED.format(member=member))
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        print(message.MEMBER_QUIT.format(member=member))
-        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
-        await channel.send(message.MEMBER_QUIT.format(member=member))
-
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        # 檢查指令是否有自己的 error handler，如果有就略過
-        if hasattr(ctx.command, 'on_error'):
-            return
-
-        if isinstance(error, commands.errors.MissingRequiredArgument):
-            await ctx.send(message.COMMAND_PARAMETER_REQUIRED)
-        elif isinstance(error, commands.errors.CommandNotFound):
-            await ctx.send(message.COMMAND_NOT_FOUND)
-
-    @commands.Cog.listener()
     async def on_raw_reaction_add(self, data):
         # 藉由反應分身分組，需要再根據伺服器 emoji 與身分組 id 到 setting.json 去設定
         user = data.member
@@ -86,10 +63,6 @@ class Event(Cog_extension):
         await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
         await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
 
-    @commands.command()
-    async def hello(self, ctx, member: discord.Member = None):
-        member = member or ctx.author
-        await ctx.send(f'Hello, {member.name}!')
 
     @commands.command()
     async def use(self, ctx, ticket: str):
