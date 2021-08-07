@@ -1,0 +1,28 @@
+[
+  {
+    "task_id": "task_1",
+    "point": 0,
+    "answers": [
+      {
+        "password": "string",
+        "message": "string",
+        "is_correct": true
+      }
+    ],
+    "wrong_message": "string"
+  },
+  {
+    "task_id": "task_2",
+    "wrong_limit": 1,
+    "point": 0,
+    "answers": [
+      {
+        "password": "string",
+        "message": "string",
+        "is_correct": true,
+        "log": false
+      }
+    ],
+    "wrong_message": "string"
+  }
+]

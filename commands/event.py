@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 from config import CONFIG
@@ -62,7 +61,6 @@ class Event(Cog_extension):
         await user.add_roles(role)
         await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
         await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
-
 
     @commands.command()
     async def use(self, ctx, ticket: str):

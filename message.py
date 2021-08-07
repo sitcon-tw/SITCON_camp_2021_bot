@@ -45,6 +45,13 @@ RANK_TABLE = '''```
 
 COMMAND_PARAMETER_REQUIRED = '還需要補上參數喔QwQ'
 COMMAND_NOT_FOUND = '沒有這個指令耶QwQ'
+COMMAND_USAGE = '用法：`{command}`'
 
 MEMBER_JOINED = '{member} 加入了伺服器！'
 MEMBER_QUIT = '{member} 退出了伺服器！'
+
+GO_TO_CHANNEL = '請到 {channel}！'
+
+TASK_UNKNOWN = '沒有這題喔！'
+TASK_ALREADY_SOLVED = '你們已經解出這題了！'
+TASK_NO_ATTEMPT_REMAINED = '已超過答題次數上限！'

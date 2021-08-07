@@ -182,7 +182,7 @@ def log_submission(
     group_id: int,
     task_id: str,
     password: str,
-    is_correct: bool
+    is_correct: bool,
 ) -> Tuple[None, Error]:
     sql = '''
         INSERT INTO `submissions`(`group_id`, `task_id`, `password`, `is_correct`)
@@ -194,6 +194,31 @@ def log_submission(
         con.commit()
 
         return (None, None)
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))
+
+
+def get_submissions_statistics(
+    group_id: int,
+    task_id: str,
+) -> Tuple[Union[None, Tuple[int, int]], Error]:
+    sql = '''
+        SELECT `is_correct`
+        FROM `submissions`
+        WHERE `group_id` = ? AND `task_id` = ?
+    '''
+
+    try:
+        cur = con.execute(sql, (group_id, task_id, ))
+        rows = cur.fetchall()
+        con.commit()
+
+        success_count = len(list(filter(lambda r: r[0] == 1, rows)))
+        failed_count = len(rows) - success_count
+
+        return ((success_count, failed_count), None)
 
     except sqlite3.Error as err:
         handle_error(err)

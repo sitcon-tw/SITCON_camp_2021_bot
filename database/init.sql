@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS `message` (
 );
 
 CREATE TABLE IF NOT EXISTS `submissions` (
-  id INT PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   group_id INT NOT NULL,
   task_id TEXT NOT NULL,
-  password TEXT,
+  password TEXT NOT NULL,
   is_correct INT NOT NULL,
   submitted_at DATETIME DEFAULT (DATETIME('now', 'localtime'))
 );
