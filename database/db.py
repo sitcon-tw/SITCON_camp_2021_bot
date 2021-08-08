@@ -241,12 +241,12 @@ def get_group_statistics(
     """
     sql = '''
         SELECT
-           `task_id`,
-           COALESCE(SUM(`is_correct` = 1), 0) AS `success_count`,
-           COALESCE(SUM(`is_correct` = 0), 0) AS `fail_count`
+            `task_id`,
+            COALESCE(SUM(`is_correct` = 1), 0) AS `success_count`,
+            COALESCE(SUM(`is_correct` = 0), 0) AS `fail_count`
         FROM `submissions`
         WHERE `group_id` = ?
-        GROUP BY `task_id`;
+        GROUP BY `task_id`
     '''
 
     try:
