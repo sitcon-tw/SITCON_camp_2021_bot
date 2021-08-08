@@ -205,20 +205,19 @@ def get_submissions_statistics(
     task_id: str,
 ) -> Tuple[Union[None, Tuple[int, int]], Error]:
     sql = '''
-        SELECT `is_correct`
+        SELECT
+            COALESCE(SUM(`is_correct` = 1), 0) AS `solved`,
+            COALESCE(SUM(`is_correct` = 0), 0) AS `failed`
         FROM `submissions`
         WHERE `group_id` = ? AND `task_id` = ?
     '''
 
     try:
         cur = con.execute(sql, (group_id, task_id, ))
-        rows = cur.fetchall()
+        rows = cur.fetchone()
         con.commit()
 
-        success_count = len(list(filter(lambda r: r[0] == 1, rows)))
-        failed_count = len(rows) - success_count
-
-        return ((success_count, failed_count), None)
+        return (rows, None)
 
     except sqlite3.Error as err:
         handle_error(err)
