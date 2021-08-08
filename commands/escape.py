@@ -5,6 +5,7 @@ from config import CONFIG
 from core.classes import Cog_extension
 from database import db
 from task import (
+    get_all_tasks,
     get_task_by_id,
     get_answer_by_password,
 )
@@ -77,11 +78,69 @@ class Escape(Cog_extension):
 
     @commands.command()
     @commands.check(is_in_bot_channel)
-    async def status(self):
+    # TODO: permission
+    async def status(self, ctx):  # dirty but worked
         '''
         Show solving status of current group
         '''
-        pass
+        group_id = get_group_id_by_bot_channel(ctx.channel)
+
+        tasks = get_all_tasks()
+
+        res, err = db.get_group_statistics(
+            group_id,
+            list(map(
+                lambda t: (t['task_id'], t['max_attempt'] if 'max_attempt' in t else 0),
+                tasks
+            ))
+        )
+        if err is not None:
+            await ctx.send(message.UNKNOWN_ERROR)
+            return
+
+        # generate table
+        table = '''```
+══════════════════════════
+ Task ID   Point   Solved
+══════════════════════════
+'''
+        table_delimeter = '''──────────────────────────
+'''
+        table_row = ''' {task_id:^7}   {point:^5}   {status:^6}
+'''
+        footer = '''══════════════════════════
+  Score             {score:^3}
+══════════════════════════```
+'''
+
+        score = 0
+        for idx, row in enumerate(res):
+            point = next(
+                filter(
+                    lambda t: t['task_id'] == row['task_id'],
+                    tasks
+                ),
+                {'point': 0},
+            )['point']
+
+            score += point if row['status'] == 1 else 0
+
+            if idx:
+                table += table_delimeter
+
+            table += table_row.format(
+                task_id=row['task_id'],
+                point=point,
+                status={
+                    -1: '✗',
+                    0: '',
+                    1: '✓',
+                }[row['status']],
+            )
+
+        table += footer.format(score=score)
+
+        await ctx.send(table)
 
     # TODO: a command for admin to get current solving status of every group?
 

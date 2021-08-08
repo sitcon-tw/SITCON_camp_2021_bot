@@ -38,6 +38,10 @@ for task in TASKS:
     assert type(task['wrong_message']) is str
 
 
+def get_all_tasks() -> List[Task]:
+    return TASKS
+
+
 def get_task_by_id(task_id: str) -> Union[None, Task]:
     return next(filter(lambda task: task['task_id'] == task_id, TASKS), None)
 
