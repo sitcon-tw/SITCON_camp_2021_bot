@@ -78,71 +78,54 @@ class Escape(Cog_extension):
 
     @commands.command()
     @commands.check(is_in_bot_channel)
-    # TODO: permission
-    async def status(self, ctx):  # dirty but worked
+    async def scoreboard(self, ctx):
         '''
-        Show solving status of current group
+        Show current scoreboard
+
+        TODO: frozen before ended
         '''
-        group_id = get_group_id_by_bot_channel(ctx.channel)
+        res, err = db.get_scoreboard()
 
-        tasks = get_all_tasks()
-
-        res, err = db.get_group_statistics(
-            group_id,
-            list(map(
-                lambda t: (t['task_id'], t['max_attempt'] if 'max_attempt' in t else 0),
-                tasks
-            ))
-        )
         if err is not None:
             await ctx.send(message.UNKNOWN_ERROR)
             return
 
-        # generate table
-        table = '''```
-══════════════════════════
- Task ID   Point   Solved
-══════════════════════════
-'''
-        table_delimeter = '''──────────────────────────
-'''
-        table_row = ''' {task_id:^7}   {point:^5}   {status:^6}
-'''
-        footer = '''══════════════════════════
-  Score             {score:^3}
-══════════════════════════```
+        table = '''```══════════════════════════════════════════════════════════════════
+ Task ID  Point   1️⃣   2️⃣   3️⃣   4️⃣   5️⃣   6️⃣   7️⃣   8️⃣   9️⃣
+══════════════════════════════════════════════════════════════════
 '''
 
-        score = 0
-        for idx, row in enumerate(res):
-            point = next(
-                filter(
-                    lambda t: t['task_id'] == row['task_id'],
-                    tasks
-                ),
-                {'point': 0},
-            )['point']
+        table_row = ' {task_id:^7}  {point:^5}   '
 
-            score += point if row['status'] == 1 else 0
+        #  table_delimeter = '──────────────────────────────────────────────────────────────────'
 
-            if idx:
-                table += table_delimeter
+        table_footer = '══════════════════════════════════════════════════════════════════```'
 
-            table += table_row.format(
-                task_id=row['task_id'],
-                point=point,
-                status={
-                    -1: '✗',
-                    0: '',
-                    1: '✓',
-                }[row['status']],
+        for idx, task in enumerate(get_all_tasks()):
+            # would hit the limit of length 2000
+            #  if idx:
+            #      table += table_delimeter
+
+            row = table_row.format(
+                task_id=task['task_id'],
+                point=task['point']
             )
 
-        table += footer.format(score=score)
+            for group_id in range(1, 10):
+                if group_id > 1:
+                    row += '   '
+
+                row += {
+                    -1: '❌',
+                    0: '⬛',
+                    1: '⭐',
+                }[res[group_id][task['task_id']]]
+
+            table += row + '\n'
+
+        table += table_footer
 
         await ctx.send(table)
-
-    # TODO: a command for admin to get current solving status of every group?
 
 
 def setup(bot):

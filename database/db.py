@@ -4,6 +4,10 @@ import traceback
 from typing import Dict, List, Tuple, Union
 
 from utils import gen_code
+from task import (
+    get_all_tasks,
+    get_task_by_id,
+)
 
 con = sqlite3.connect('database/sqlite.db')
 
@@ -224,59 +228,48 @@ def get_submissions_statistics(
         return (None, ' '.join(err.args))
 
 
-def get_group_statistics(
-    group_id: int,
-    tasks: List[Tuple[str, int]]  # [(task_id, max_attempt)]
-) -> Tuple[Union[None, List[Dict[str, Union[int, str]]]], Error]:
+def get_scoreboard() -> Tuple[Union[None, Dict[int, Dict[str, int]]], Error]:
     """
-    Get the statistics of the group's solving status
+    Get scoreboard
 
-    Returning a list of (task_id: str, status: int),
-    where
-        task_id is the task's id,
-        status is one of (-1, 0, 1), where
-            -1: running out of attemps,
-            0: not yet solved,
-            1: solved
+    Returning a 2 dimensional dict
+    where the value of result[group_id][task_id] is one of (-1, 0, 1)
+    which means
+        -1: running out of attemps,
+        0: not yet solved,
+        1: solved
     """
     sql = '''
         SELECT
+            `group_id`,
             `task_id`,
             COALESCE(SUM(`is_correct` = 1), 0) AS `success_count`,
             COALESCE(SUM(`is_correct` = 0), 0) AS `fail_count`
         FROM `submissions`
-        WHERE `group_id` = ?
-        GROUP BY `task_id`
+        GROUP BY `group_id`, `task_id`
     '''
 
     try:
-        cur = con.execute(sql, (group_id, ))
+        cur = con.execute(sql)
         rows = cur.fetchall()
         con.commit()
 
-        s = {}
-        for row in rows:
-            s[row[0]] = {
-                'success_count': row[1],
-                'fail_count': row[2],
-            }
+        tasks = get_all_tasks()
+        table = {i: {task['task_id']: 0 for task in tasks} for i in range(1, 10)}
 
-        res = []
-        for task in tasks:
-            task_id, max_attempt = task
+        for row in rows:
+            group_id, task_id, success_count, fail_count = row
+            task = get_task_by_id(task_id)
 
             status = 0
-            if task_id in s and max_attempt != 0 and s[task_id]['fail_count'] >= max_attempt:
+            if 'max_attempt' in task and fail_count >= task['max_attempt']:
                 status = -1
-            elif task_id in s and s[task_id]['success_count'] > 0:
+            elif success_count > 0:
                 status = 1
 
-            res.append({
-                'task_id': task_id,
-                'status': status,
-            })
+            table[group_id][task_id] = status
 
-        return (res, None)
+        return (table, None)
 
     except sqlite3.Error as err:
         handle_error(err)
