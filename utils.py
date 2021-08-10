@@ -33,3 +33,7 @@ def get_group_id_by_guild(guild: Guild):
 
 def is_in_bot_channel(ctx) -> bool:
     return ctx.channel.id in CONFIG['CHANNEL_BOT'].values()
+
+
+def is_in_code_channel(ctx) -> bool:
+    return ctx.channel.id == CONFIG['CHANNEL_CODE']

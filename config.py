@@ -6,6 +6,7 @@ with open('setting.json', mode='r', encoding='utf-8') as jfile:
 CONFIG = {
     'TOKEN': jdata['TOKEN'],
     'CHANNEL_MAINROOM': jdata['CHANNEL_MAINROOM'],
+    'CHANNEL_CODE': jdata['CHANNEL_CODE'],
     'SERVER': {},
     'CHANNEL_BOT': {},
     'CHANNEL_ROLE': {},

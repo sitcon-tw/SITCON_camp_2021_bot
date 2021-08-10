@@ -14,7 +14,7 @@ ROLE_TOO_MANY = '你的組別也太多...'
 POINT_ADDED = '第 {group} 組加 {point} 分！'
 
 CODE_USED = '這序號已經使用過囉！'
-CODE_DELETED = '序號 {code} 已刪除！'
+CODE_DELETED = '序號 `{code}` 已刪除！'
 CODE_NOT_EXISTS = '輸入的序號有錯喔QQ'
 
 UNKNOWN_ERROR = '發生了一點錯誤！'
@@ -51,6 +51,10 @@ MEMBER_JOINED = '{member} 加入了伺服器！'
 MEMBER_QUIT = '{member} 退出了伺服器！'
 
 GO_TO_CHANNEL = '請到 {channel}！'
+GO_TO_YOUR_SERVER = '請到你們組別的文字頻道！'
+GO_TO_CODE_CHANNEL = '請到 SITCON Server 的 #code 頻道！'
+
+PERMISSIONS_MISSING = '你沒有權限！'
 
 TASK_UNKNOWN = '沒有這題喔！'
 TASK_ALREADY_SOLVED = '你們已經解出這題了！'

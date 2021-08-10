@@ -3,7 +3,11 @@ from discord.ext import commands
 from config import CONFIG
 from core.classes import Cog_extension
 from database import db
-from utils import get_group_id_by_role
+from utils import (
+    is_in_bot_channel,
+    is_in_code_channel,
+    get_group_id_by_bot_channel,
+)
 import message
 
 
@@ -13,7 +17,6 @@ class Event(Cog_extension):
         print('>>SITCON camp Ready!<<')
 
         # get all group roles
-        # TODO: refactor the following line
         group_roles = [CONFIG['CHANNEL_ROLE'][i] for i in range(1, 10)]
         all_roles = [role for guild in self.bot.guilds for role in guild.roles]
 
@@ -21,7 +24,6 @@ class Event(Cog_extension):
         self.roles = sorted(roles, key=lambda val: group_roles.index(val.id))
 
         # get group reactions
-        # TODO: refactor the following line
         self.emojis = [CONFIG['CHANNEL_EMOJI'][i] for i in range(1, 10)]
 
         res, err = db.get_group_selection_message_id()
@@ -45,13 +47,35 @@ class Event(Cog_extension):
         if user.bot:
             return
 
-        channel = self.bot.get_channel(CONFIG['CHANNEL_MAINROOM'])
+        if data.message_id != self.group_selection_message.id:
+            return
 
         # if member already has one role, remove it and do nothing
         roles = list(set(user.roles).intersection(self.roles))
         if len(roles) == 1:
-            await channel.send(message.ROLE_ALREADY_EXISTS.format(mention=user.mention, role_name=roles[0].name))
             await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
+            return
+
+        # if add emoji other than 1~9, remove them
+        try:
+            group_id = self.emojis.index(data.emoji.name) + 1
+        except ValueError:
+            await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
+            return
+
+        guild = self.bot.get_guild(data.guild_id)
+        role = guild.get_role(CONFIG['CHANNEL_ROLE'][group_id])
+        await user.add_roles(role)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, data):
+        guild = self.bot.get_guild(data.guild_id)
+        user = await guild.fetch_member(data.user_id)
+
+        if user.bot:
+            return
+
+        if data.message_id != self.group_selection_message.id:
             return
 
         try:
@@ -61,28 +85,14 @@ class Event(Cog_extension):
 
         guild = self.bot.get_guild(data.guild_id)
         role = guild.get_role(CONFIG['CHANNEL_ROLE'][group_id])
-        await user.add_roles(role)
-        await channel.send(message.ROLE_ADDED.format(mention=user.mention, role_name=role.name))
-        await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
+        await user.remove_roles(role)
 
     @commands.command()
-    async def use(self, ctx, ticket: str):
-        author_roles = ctx.author.roles
+    @commands.check(is_in_bot_channel)
+    async def use(self, ctx, code: str):
+        group_id = get_group_id_by_bot_channel(ctx.channel)
 
-        # ensure there are only one role for author
-        # TODO: remove it since we already ensure that every member has only one role
-        roles = list(set(author_roles).intersection(set(self.roles)))
-        if len(roles) == 0:
-            await ctx.send(message.ROLE_NOT_EXISTS)
-            return
-
-        if len(roles) != 1:
-            await ctx.send(message.ROLE_TOO_MANY)
-            return
-
-        group_id = get_group_id_by_role(roles[0])
-
-        res, err = db.use_point_code(ticket, group_id)
+        res, err = db.use_point_code(code, group_id)
         if err is not None:
             if err == 'not exists':
                 await ctx.send(message.CODE_NOT_EXISTS)
@@ -93,7 +103,18 @@ class Event(Cog_extension):
         else:
             await ctx.send(message.POINT_ADDED.format(group=group_id, point=res))
 
+    @use.error
+    async def use_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send(message.GO_TO_YOUR_SERVER)
+            return
+
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(message.COMMAND_USAGE.format(command='/use <code>'))
+            return
+
     @commands.command()
+    @commands.check(is_in_code_channel)
     @commands.has_any_role('卍序號a支配者卍')
     async def gen(self, ctx, point: int, amount: int):
         res, err = db.gen_point_code(point, amount)
@@ -102,7 +123,22 @@ class Event(Cog_extension):
         else:
             await ctx.send(message.CODE_GENERATED.format(amount=amount, point=point, codes='\n'.join(res)))
 
+    @gen.error
+    async def gen_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send(message.GO_TO_CODE_CHANNEL)
+            return
+
+        if isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
+            await ctx.send(message.PERMISSIONS_MISSING)
+            return
+
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(message.COMMAND_USAGE.format(command='/gen <point> <amount>'))
+            return
+
     @commands.command()
+    @commands.check(is_in_code_channel)
     @commands.has_any_role('卍序號a支配者卍')
     async def delete(self, ctx, code: str):
         _, err = db.delete_point_code(code)
@@ -114,14 +150,34 @@ class Event(Cog_extension):
         else:
             await ctx.send(message.CODE_DELETED.format(code=code))
 
+    @delete.error
+    async def delete_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send(message.GO_TO_CODE_CHANNEL)
+            return
+
+        if isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
+            await ctx.send(message.PERMISSIONS_MISSING)
+            return
+
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(message.COMMAND_USAGE.format(command='/delete <code>'))
+            return
+
     @commands.command()
-    #  @commands.has_any_role() # TODO: who can see the rank?
+    @commands.check(lambda ctx: is_in_code_channel(ctx) or is_in_bot_channel(ctx))
     async def rank(self, ctx):
         res, err = db.get_group_point()
         if err is not None:
             await ctx.send(message.UNKNOWN_ERROR)
         else:
             await ctx.send(message.RANK_TABLE.format(table=res))
+
+    @rank.error
+    async def rank_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send(message.GO_TO_YOUR_SERVER)
+            return
 
 
 def setup(bot):
