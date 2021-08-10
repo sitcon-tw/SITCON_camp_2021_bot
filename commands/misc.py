@@ -38,6 +38,10 @@ class Misc(Cog_extension):
     async def ping(self, ctx):
         await ctx.send('pong')
 
+    @commands.command()
+    async def help(self, ctx):
+        await ctx.send(message.HELP)
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))

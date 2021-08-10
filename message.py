@@ -1,6 +1,17 @@
 BANNER = '''歡迎加入！
 你是哪個組別ㄉ？'''
 
+HELP = '''```
+General
+    /help         Show this message
+    /rank         Show current group rank
+    /use          Use a code to get point
+
+Escape Room (only available during event)
+    /solve        Solve a task
+    /scoreboard   Show current scoreboard
+```'''
+
 CODE_GENERATED = '''已產生 {amount} 組 {point} 分的序號：
 ```
 {codes}
