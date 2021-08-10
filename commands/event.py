@@ -1,3 +1,4 @@
+from datetime import datetime
 from discord.ext import commands
 
 from config import CONFIG
@@ -6,7 +7,10 @@ from database import db
 from utils import (
     is_in_bot_channel,
     is_in_code_channel,
+    is_in_code_or_bot_channel,
     get_group_id_by_bot_channel,
+    BotChannelOnly,
+    CodeChannelOnly,
 )
 import message
 
@@ -105,7 +109,7 @@ class Event(Cog_extension):
 
     @use.error
     async def use_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
+        if isinstance(error, BotChannelOnly):
             await ctx.send(message.GO_TO_YOUR_SERVER)
             return
 
@@ -114,8 +118,8 @@ class Event(Cog_extension):
             return
 
     @commands.command()
-    @commands.check(is_in_code_channel)
     @commands.has_any_role('卍序號a支配者卍')
+    @commands.check(is_in_code_channel)
     async def gen(self, ctx, point: int, amount: int):
         res, err = db.gen_point_code(point, amount)
         if err is not None:
@@ -125,7 +129,7 @@ class Event(Cog_extension):
 
     @gen.error
     async def gen_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
+        if isinstance(error, CodeChannelOnly):
             await ctx.send(message.GO_TO_CODE_CHANNEL)
             return
 
@@ -152,7 +156,7 @@ class Event(Cog_extension):
 
     @delete.error
     async def delete_error(self, ctx, error):
-        if isinstance(error, commands.CheckFailure):
+        if isinstance(error, CodeChannelOnly):
             await ctx.send(message.GO_TO_CODE_CHANNEL)
             return
 
@@ -165,13 +169,65 @@ class Event(Cog_extension):
             return
 
     @commands.command()
-    @commands.check(lambda ctx: is_in_code_channel(ctx) or is_in_bot_channel(ctx))
+    @commands.check(is_in_code_or_bot_channel)
     async def rank(self, ctx):
         res, err = db.get_group_point()
         if err is not None:
             await ctx.send(message.UNKNOWN_ERROR)
+            return
+
+        now = datetime.now()
+        ended = datetime.fromisoformat(CONFIG['ESCAPE_END'])
+        show_escape = now >= ended
+
+        # construct table
+        if show_escape:
+            sort_key = lambda x: (
+                x['code'] + x['escape'],
+                x['code'],
+                x['escape'],
+                -x['group'],
+            )
+
+            table = '''```
+╔═══╤═══════╤════════════╤══════════════╤═════════╗
+║ # │ Group │ Code Point │ Escape Point │  Total  ║
+╠═══╪═══════╪════════════╪══════════════╪═════════╣
+'''
+            table_delimeter = '╠═══╪═══════╪════════════╪══════════════╪═════════╣\n'
+            table_row = '║ {idx} │   {group_id}   │ {code:^10} │ {escape:^12} │ {total:^7} ║\n'
+            table_footer = '╚═══╧═══════╧════════════╧══════════════╧═════════╝```'
         else:
-            await ctx.send(message.RANK_TABLE.format(table=res))
+            sort_key = lambda x: (
+                x['code'],
+                -x['group'],
+            )
+
+            table = '''```
+╔═══╤═══════╤════════════╤═════════╗
+║ # │ Group │ Code Point │  Total  ║
+╠═══╪═══════╪════════════╪═════════╣
+'''
+            table_delimeter = '╠═══╪═══════╪════════════╪═════════╣\n'
+            table_row = '║ {idx} │   {group_id}   │ {code:^10} │ {total:^7} ║\n'
+            table_footer = '╚═══╧═══════╧════════════╧═════════╝```'
+
+        res.sort(key=sort_key, reverse=True)
+        for idx, data in enumerate(res):
+            if idx:
+                table += table_delimeter
+
+            table += table_row.format(
+                idx=idx + 1,
+                group_id=data['group'],
+                code=data['code'],
+                escape=data['escape'],
+                total=data['code'] + data['escape'] if show_escape else data['code'],
+            )
+
+        table += table_footer
+
+        await ctx.send(table)
 
     @rank.error
     async def rank_error(self, ctx, error):

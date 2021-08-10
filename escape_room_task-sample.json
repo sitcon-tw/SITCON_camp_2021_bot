@@ -23,6 +23,7 @@
         "log": false
       }
     ],
-    "wrong_message": "string"
+    "wrong_message": "string",
+    "available_after": "2021-01-01 00:00:00"
   }
 ]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import re
 from typing import List, TypedDict, Union
 
 
@@ -16,6 +17,7 @@ class Task(TypedDict):
     point: int
     answers: List[Answer]
     wrong_message: str
+    available_after: NotRequired[str]
 
 
 with open('escape_room_task.json', 'rb') as f:
@@ -36,6 +38,11 @@ for task in TASKS:
         assert type(answer['is_correct']) is bool
         assert 'log' not in answer or type(answer['log']) is bool
     assert type(task['wrong_message']) is str
+    assert 'available_after' not in task \
+        or (
+            type(task['available_after']) is str
+            and re.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$', task['available_after'])
+        )
 
 
 def get_all_tasks() -> List[Task]:

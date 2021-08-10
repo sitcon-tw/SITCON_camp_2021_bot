@@ -1,8 +1,10 @@
+from datetime import datetime
 import sqlite3
 import sys
 import traceback
 from typing import Dict, List, Tuple, Union
 
+from config import CONFIG
 from utils import gen_code
 from task import (
     get_all_tasks,
@@ -113,14 +115,16 @@ def delete_point_code(code: str) -> Tuple[None, Error]:
         return (None, ' '.join(err.args))
 
 
-def get_group_point() -> Tuple[Union[List[Tuple[int, int]], None], Error]:
+def get_group_point() -> Tuple[Union[List[Dict[str, int]], None], Error]:
     """
-    Return a list of tuple where the `i`-th value is the rank `i+1`-th (group, point)
-
-    e.g. if res[0] == (5, 100), then group 5 is currently at rank 1 with 100 points
+    Return a list of dict with the structure of {
+        group: int,
+        code: int,
+        escape: int
+    }
     """
 
-    sql = '''
+    sql_code = '''
         SELECT `used_by` AS `group`, SUM(`point`) AS `point`
         FROM `point_code`
         WHERE `used_by` > 0
@@ -128,26 +132,54 @@ def get_group_point() -> Tuple[Union[List[Tuple[int, int]], None], Error]:
         ORDER BY `point` DESC, `group` ASC
     '''
 
+    sql_escape = '''
+        SELECT `group_id`, `task_id`
+        FROM `submissions`
+        WHERE `is_correct` = 1
+    '''
+
+    score = {
+        i: {
+            'code': 0,
+            'escape': 0,
+        } for i in range(1, 10)
+    }
+
     try:
-        cur = con.execute(sql)
+        cur = con.execute(sql_code)
         rows = cur.fetchall()
         con.commit()
 
-        res = []
-        groups = set()
         for row in rows:
-            res.append(row)
-            groups.add(row[0])
-
-        for i in range(1, 10):
-            if i not in groups:
-                res.append((i, 0))
-
-        return (res, None)
+            score[row[0]]['code'] = row[1]
 
     except sqlite3.Error as err:
         handle_error(err)
         return (None, ' '.join(err.args))
+
+    # load escape room score if ended
+    try:
+        now = datetime.now()
+        ended = datetime.fromisoformat(CONFIG['ESCAPE_END'])
+        if now >= ended:
+            cur = con.execute(sql_escape)
+            rows = cur.fetchall()
+            con.commit()
+
+            for row in rows:
+                task = get_task_by_id(row[1])
+                score[row[0]]['escape'] += task['point']
+
+    except sqlite3.Error as err:
+        handle_error(err)
+        return (None, ' '.join(err.args))
+
+    res = list(map(
+        lambda i: {'group': i[0], **i[1]},
+        score.items(),
+    ))
+
+    return (res, None)
 
 
 def get_group_selection_message_id() -> Tuple[Union[int, None], Error]:

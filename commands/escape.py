@@ -1,3 +1,4 @@
+from datetime import datetime
 from discord.ext import commands
 
 import message
@@ -10,9 +11,15 @@ from task import (
     get_answer_by_password,
 )
 from utils import (
-    is_in_bot_channel,
     get_group_id_by_bot_channel,
     get_group_id_by_guild,
+    BotChannelOnly,
+    is_in_bot_channel,
+    EscapeNotStarted,
+    EscapeEnded,
+    is_escape_running,
+    ScoreboardFrozen,
+    is_scoreboard_available,
 )
 
 
@@ -23,6 +30,7 @@ class Escape(Cog_extension):
 
     @commands.command()
     @commands.check(is_in_bot_channel)
+    @commands.check(is_escape_running)
     async def solve(self, ctx, task_id: str, *, password: str):
         '''
         Log every single submission into database
@@ -37,6 +45,13 @@ class Escape(Cog_extension):
         if task is None:
             await ctx.send(message.TASK_UNKNOWN)
             return
+
+        if 'available_after' in task:
+            now = datetime.now()
+            available_after = datetime.fromisoformat(task['available_after'])
+            if now < available_after:
+                await ctx.send(message.TASK_UNKNOWN)
+                return
 
         res, err = db.get_submissions_statistics(group_id, task_id)
         if err is not None:
@@ -69,15 +84,27 @@ class Escape(Cog_extension):
 
     @solve.error
     async def solve_error(self, ctx, error):
+        if isinstance(error, EscapeNotStarted):
+            return
+
+        if isinstance(error, EscapeEnded):
+            await ctx.send(message.ESCAPE_ENDED)
+            return
+
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(message.COMMAND_USAGE.format(command='/solve <task_id> <password>'))
-        if isinstance(error, commands.CheckFailure):
+            return
+
+        if isinstance(error, BotChannelOnly):
             group_id = get_group_id_by_guild(ctx.guild)
             group = self.bot.get_channel(CONFIG['CHANNEL_BOT'][group_id])
             await ctx.send(message.GO_TO_CHANNEL.format(channel=group.mention))
+            return
 
     @commands.command()
+    @commands.check(is_scoreboard_available)
     @commands.check(is_in_bot_channel)
+    @commands.check(is_escape_running)
     async def scoreboard(self, ctx):
         '''
         Show current scoreboard
@@ -106,6 +133,12 @@ class Escape(Cog_extension):
             #  if idx:
             #      table += table_delimeter
 
+            if 'available_after' in task:
+                now = datetime.now()
+                available_after = datetime.fromisoformat(task['available_after'])
+                if now < available_after:
+                    continue
+
             row = table_row.format(
                 task_id=task['task_id'],
                 point=task['point']
@@ -126,6 +159,19 @@ class Escape(Cog_extension):
         table += table_footer
 
         await ctx.send(table)
+
+    @scoreboard.error
+    async def scoreboard_error(self, ctx, error):
+        if isinstance(error, EscapeNotStarted):
+            return
+
+        if isinstance(error, EscapeEnded):
+            await ctx.send(message.ESCAPE_ENDED)
+            return
+
+        if isinstance(error, ScoreboardFrozen):
+            await ctx.send(message.SCOREBOARD_FROZEN)
+            return
 
 
 def setup(bot):
