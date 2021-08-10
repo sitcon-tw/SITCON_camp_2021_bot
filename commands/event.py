@@ -54,7 +54,10 @@ class Event(Cog_extension):
             await self.group_selection_message.remove_reaction(emoji=data.emoji, member=user)
             return
 
-        group_id = self.emojis.index(data.emoji.name) + 1
+        try:
+            group_id = self.emojis.index(data.emoji.name) + 1
+        except ValueError:
+            return
 
         guild = self.bot.get_guild(data.guild_id)
         role = guild.get_role(CONFIG['CHANNEL_ROLE'][group_id])
