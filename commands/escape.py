@@ -38,7 +38,7 @@ class Escape(Cog_extension):
         Trigger hint if the submitted password is close enough
         '''
         group_id = get_group_id_by_bot_channel(ctx.channel)
-        print(f'[+] Group {group_id} solve task_id: {task_id} with password: <{password}>')
+        print(f'[escape] group {group_id} tried to solve {task_id} with <{password}>')
 
         task = get_task_by_id(task_id)
 
@@ -81,6 +81,7 @@ class Escape(Cog_extension):
             db.log_submission(group_id, task_id, password, answer['is_correct'])
 
         await ctx.send(answer['message'])
+        print(f'[escape] group {group_id} solved {task_id}')
 
     @solve.error
     async def solve_error(self, ctx, error):

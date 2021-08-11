@@ -96,6 +96,8 @@ class Event(Cog_extension):
     async def use(self, ctx, code: str):
         group_id = get_group_id_by_bot_channel(ctx.channel)
 
+        print(f'[code] group {group_id} tried to use {code}')
+
         res, err = db.use_point_code(code, group_id)
         if err is not None:
             if err == 'not exists':
@@ -106,6 +108,7 @@ class Event(Cog_extension):
                 await ctx.send(message.UNKNOWN_ERROR)
         else:
             await ctx.send(message.POINT_ADDED.format(group=group_id, point=res))
+            print(f'[code] group {group_id} used {code}')
 
     @use.error
     async def use_error(self, ctx, error):
@@ -126,6 +129,7 @@ class Event(Cog_extension):
             await ctx.send(message.UNKNOWN_ERROR)
         else:
             await ctx.send(message.CODE_GENERATED.format(amount=amount, point=point, codes='\n'.join(res)))
+            print(f'[code] {amount} code with {point} point have generated')
 
     @gen.error
     async def gen_error(self, ctx, error):
@@ -153,6 +157,7 @@ class Event(Cog_extension):
                 await ctx.send(message.UNKNOWN_ERROR)
         else:
             await ctx.send(message.CODE_DELETED.format(code=code))
+            print(f'[code] {code} deleted')
 
     @delete.error
     async def delete_error(self, ctx, error):
