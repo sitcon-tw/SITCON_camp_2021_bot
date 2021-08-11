@@ -4,7 +4,7 @@ import os
 from config import CONFIG
 
 
-bot = commands.Bot(command_prefix='/', help_command=None)
+bot = commands.Bot(command_prefix='//', help_command=None)
 
 
 if __name__ == '__main__':

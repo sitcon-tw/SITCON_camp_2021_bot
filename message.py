@@ -3,13 +3,13 @@ BANNER = '''歡迎加入！
 
 HELP = '''```
 General
-    /help         Show this message
-    /rank         Show current group rank
-    /use          Use a code to get point
+    //help         Show this message
+    //rank         Show current group rank
+    //use          Use a code to get point
 
 Escape Room (only available during event)
-    /solve        Solve a task
-    /scoreboard   Show current scoreboard
+    //solve        Solve a task
+    //scoreboard   Show current scoreboard
 ```'''
 
 CODE_GENERATED = '''已產生 {amount} 組 {point} 分的序號：

@@ -93,7 +93,7 @@ class Escape(Cog_extension):
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(message.COMMAND_USAGE.format(command='/solve <task_id> <password>'))
+            await ctx.send(message.COMMAND_USAGE.format(command='//solve <task_id> <password>'))
             return
 
         if isinstance(error, BotChannelOnly):

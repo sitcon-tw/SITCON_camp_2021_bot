@@ -117,7 +117,7 @@ class Event(Cog_extension):
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(message.COMMAND_USAGE.format(command='/use <code>'))
+            await ctx.send(message.COMMAND_USAGE.format(command='//use <code>'))
             return
 
     @commands.command()
@@ -142,7 +142,7 @@ class Event(Cog_extension):
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(message.COMMAND_USAGE.format(command='/gen <point> <amount>'))
+            await ctx.send(message.COMMAND_USAGE.format(command='//gen <point> <amount>'))
             return
 
     @commands.command()
@@ -170,7 +170,7 @@ class Event(Cog_extension):
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(message.COMMAND_USAGE.format(command='/delete <code>'))
+            await ctx.send(message.COMMAND_USAGE.format(command='//delete <code>'))
             return
 
     @commands.command()
