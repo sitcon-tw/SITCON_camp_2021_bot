@@ -22,7 +22,7 @@ ROLE_ADDED = '{mention} 已把你加到 {role_name} 囉！'
 ROLE_NOT_EXISTS = '你是哪個組別ㄉ？'
 ROLE_TOO_MANY = '你的組別也太多...'
 
-POINT_ADDED = '第 {group} 組加 {point} 分！'
+POINT_ADDED = '第 {group} 組加 {point} 小石幣！'
 
 CODE_USED = '這序號已經使用過囉！'
 CODE_DELETED = '序號 `{code}` 已刪除！'
