@@ -195,13 +195,13 @@ class Event(Cog_extension):
             )
 
             table = '''```
-╔═══╤═══════╤════════════╤══════════════╤═════════╗
-║ # │ Group │ Code Point │ Escape Point │  Total  ║
-╠═══╪═══════╪════════════╪══════════════╪═════════╣
+╔═══════╤════════════╤══════════════╤═════════╗
+║ Group │ Code Point │ Escape Point │  Total  ║
+╠═══════╪════════════╪══════════════╪═════════╣
 '''
-            table_delimeter = '╠═══╪═══════╪════════════╪══════════════╪═════════╣\n'
-            table_row = '║ {idx} │   {group_id}   │ {code:^10} │ {escape:^12} │ {total:^7} ║\n'
-            table_footer = '╚═══╧═══════╧════════════╧══════════════╧═════════╝```'
+            table_delimeter = '╠═══════╪════════════╪══════════════╪═════════╣\n'
+            table_row = '║   {group_id}   │ {code:^10} │ {escape:^12} │ {total:^7} ║\n'
+            table_footer = '╚═══════╧════════════╧══════════════╧═════════╝```'
         else:
             sort_key = lambda x: (
                 x['code'],
@@ -209,13 +209,13 @@ class Event(Cog_extension):
             )
 
             table = '''```
-╔═══╤═══════╤════════════╤═════════╗
-║ # │ Group │ Code Point │  Total  ║
-╠═══╪═══════╪════════════╪═════════╣
+╔═══════╤════════════╤═════════╗
+║ Group │ Code Point │  Total  ║
+╠═══════╪════════════╪═════════╣
 '''
-            table_delimeter = '╠═══╪═══════╪════════════╪═════════╣\n'
-            table_row = '║ {idx} │   {group_id}   │ {code:^10} │ {total:^7} ║\n'
-            table_footer = '╚═══╧═══════╧════════════╧═════════╝```'
+            table_delimeter = '╠═══════╪════════════╪═════════╣\n'
+            table_row = '║   {group_id}   │ {code:^10} │ {total:^7} ║\n'
+            table_footer = '╚═══════╧════════════╧═════════╝```'
 
         res.sort(key=sort_key, reverse=True)
         for idx, data in enumerate(res):
@@ -223,7 +223,6 @@ class Event(Cog_extension):
                 table += table_delimeter
 
             table += table_row.format(
-                idx=idx + 1,
                 group_id=data['group'],
                 code=data['code'],
                 escape=data['escape'],
