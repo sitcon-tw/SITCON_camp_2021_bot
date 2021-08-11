@@ -68,7 +68,11 @@ def get_point_code() -> Tuple[Union[None, List[CodePoint]], Error]:
 
 def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
     sql_check_not_used = 'SELECT `used_by`, `point` FROM `point_code` WHERE `code` = ?'
-    sql_update = 'UPDATE `point_code` SET `used_by` = ? WHERE `code` = ?'
+    sql_update = '''
+        UPDATE `point_code`
+        SET `used_by` = ?, `used_at` = ?
+        WHERE `code` = ?
+    '''
 
     try:
         cur = con.execute(sql_check_not_used, (code, ))
@@ -83,7 +87,8 @@ def use_point_code(code: str, group: int) -> Tuple[Union[Point, None], Error]:
         if used_by > 0 or used_by == -1:
             return (None, 'used')
 
-        con.execute(sql_update, (group, code))
+        now = datetime.now().replace(microsecond=0).isoformat(' ')
+        con.execute(sql_update, (group, now, code))
         con.commit()
 
         return (point, None)
