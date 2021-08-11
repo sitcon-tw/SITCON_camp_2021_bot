@@ -11,6 +11,7 @@ CONFIG = {
     'SERVER': {},
     'CHANNEL_BOT': {},
     'CHANNEL_ROLE': {},
+    'ANNOUNCEMENT': {},
     'CHANNEL_EMOJI': {},
     'ESCAPE_START': jdata['ESCAPE_START'],
     'ESCAPE_FROZEN': jdata['ESCAPE_FROZEN'],
@@ -28,5 +29,6 @@ if re.match(pattern, CONFIG['ESCAPE_START']) is None \
 for i in range(1, 10):
     CONFIG['CHANNEL_BOT'][i] = jdata[f'CHANNEL_BOT_{i}']
     CONFIG['SERVER'][i] = jdata[f'SERVER_{i}']
+    CONFIG['ANNOUNCEMENT'][i] = jdata[f'ANNOUNCEMENT_{i}']
     CONFIG['CHANNEL_ROLE'][i] = jdata[f'CHANNEL_ROLE_{i}']
     CONFIG['CHANNEL_EMOJI'][i] = jdata[f'CHANNEL_EMOJI_{i}']

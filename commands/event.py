@@ -239,6 +239,27 @@ class Event(Cog_extension):
             await ctx.send(message.GO_TO_YOUR_SERVER)
             return
 
+    @commands.command()
+    @commands.check(is_in_code_channel)
+    async def announce(self, ctx, group: str, *, msg: str):
+        try:
+            if group == 'all':
+                target = CONFIG['ANNOUNCEMENT'].values()
+            else:
+                target = [CONFIG['ANNOUNCEMENT'][int(i)] for i in group.split(',')]
+
+            for channel_id in target:
+                channel = self.bot.get_channel(channel_id)
+                await channel.send(msg)
+        except ValueError:
+            await ctx.send(message.PARAMETER_TYPE_ERROR)
+
+    @announce.error
+    async def announce_error(self, ctx, error):
+        if isinstance(error, CodeChannelOnly):
+            await ctx.send(message.GO_TO_CODE_CHANNEL)
+            return
+
 
 def setup(bot):
     bot.add_cog(Event(bot))

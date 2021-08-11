@@ -42,6 +42,7 @@ GO_TO_YOUR_SERVER = '請到你們組別的文字頻道！'
 GO_TO_CODE_CHANNEL = '請到 SITCON Server 的 #code 頻道！'
 
 PERMISSIONS_MISSING = '你沒有權限QQ'
+PARAMETER_TYPE_ERROR = '參數錯誤QQ'
 
 TASK_UNKNOWN = '沒有這題喔！'
 TASK_ALREADY_SOLVED = '你們已經解出這題了！'
