@@ -42,8 +42,6 @@ class CodeChannelOnly(commands.CheckFailure):
 
 
 def is_in_bot_channel(ctx) -> bool:
-    print(ctx.channel.id)
-    print(CONFIG['CHANNEL_BOT'].values())
     if ctx.channel.id in CONFIG['CHANNEL_BOT'].values():
         return True
 
