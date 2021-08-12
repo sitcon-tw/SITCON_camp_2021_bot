@@ -242,6 +242,8 @@ class Event(Cog_extension):
     @commands.command()
     @commands.check(is_in_code_channel)
     async def announce(self, ctx, group: str, *, msg: str):
+        print(f'[announce] trying to announcing to {group} with message\n<{msg}>')
+
         try:
             if group == 'all':
                 target = CONFIG['ANNOUNCEMENT'].values()
@@ -251,7 +253,10 @@ class Event(Cog_extension):
             for channel_id in target:
                 channel = self.bot.get_channel(channel_id)
                 await channel.send(msg)
-        except ValueError:
+
+            print(f'[announce] success')
+
+        except (KeyError, ValueError):
             await ctx.send(message.PARAMETER_TYPE_ERROR)
 
     @announce.error
