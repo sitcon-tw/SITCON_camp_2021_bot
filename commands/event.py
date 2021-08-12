@@ -242,7 +242,7 @@ class Event(Cog_extension):
     @commands.command()
     @commands.check(is_in_code_channel)
     async def announce(self, ctx, group: str, *, msg: str):
-        print(f'[announce] trying to announcing to {group} with message\n<{msg}>')
+        print(f'[announce] trying to announce to {group} with message\n<{msg}>')
 
         try:
             if group == 'all':
