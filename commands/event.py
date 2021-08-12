@@ -260,6 +260,10 @@ class Event(Cog_extension):
         except (KeyError, ValueError):
             await ctx.send(message.PARAMETER_TYPE_ERROR)
 
+        except Exception as err:
+            print(err)
+            await ctx.send(message.UNKNOWN_ERROR)
+
     @announce.error
     async def announce_error(self, ctx, error):
         if isinstance(error, CodeChannelOnly):
