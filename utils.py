@@ -9,7 +9,7 @@ from config import CONFIG
 
 
 def gen_code() -> str:
-    return urandom(16).hex()
+    return urandom(8).hex()
 
 
 def get_group_id_by_role(role: Role) -> int:
