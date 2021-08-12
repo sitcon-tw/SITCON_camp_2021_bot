@@ -50,3 +50,5 @@ TASK_NO_ATTEMPT_REMAINED = '已超過答題次數上限！'
 
 ESCAPE_ENDED = '密室逃脫結束囉！'
 SCOREBOARD_FROZEN = '計分板凍結了！'
+
+ANNOUNCEMENT_SENT = '公告已成功發出！'

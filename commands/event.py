@@ -254,6 +254,7 @@ class Event(Cog_extension):
                 channel = self.bot.get_channel(channel_id)
                 await channel.send(msg)
 
+            await ctx.send(message.ANNOUNCEMENT_SENT)
             print(f'[announce] success')
 
         except (KeyError, ValueError):
