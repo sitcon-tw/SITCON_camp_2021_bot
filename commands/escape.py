@@ -118,18 +118,27 @@ class Escape(Cog_extension):
             await ctx.send(message.UNKNOWN_ERROR)
             return
 
-        table = '''```══════════════════════════════════════════════════════════════════
- Task ID  Point   1️⃣   2️⃣   3️⃣   4️⃣   5️⃣   6️⃣   7️⃣   8️⃣   9️⃣
-══════════════════════════════════════════════════════════════════
-'''
+        tasks = get_all_tasks()
 
-        table_row = ' {task_id:^7}  {point:^5}   '
+        header = 'Task ID'
+        max_task_id_length = max(
+            max(map(lambda task: len(task['task_id']), tasks)),
+            len(header),
+        )
+        table = '''```══════════════════════════════════════════════════════════════════
+ {header:^{width}}  Point   1️⃣   2️⃣   3️⃣   4️⃣   5️⃣   6️⃣   7️⃣   8️⃣   9️⃣
+══════════════════════════════════════════════════════════════════
+'''.format(header=header, width=max_task_id_length)
+        table = '''``` {header:^{width}}  Point   1️⃣   2️⃣   3️⃣   4️⃣   5️⃣   6️⃣   7️⃣   8️⃣   9️⃣ \n'''.format(header=header, width=max_task_id_length)
+
+        table_row = ' {task_id:^{width}}  {point:^5}   '
 
         #  table_delimeter = '──────────────────────────────────────────────────────────────────'
 
-        table_footer = '══════════════════════════════════════════════════════════════════```'
+        #  table_footer = '══════════════════════════════════════════════════════════════════```'
+        table_footer = '```'
 
-        for idx, task in enumerate(get_all_tasks()):
+        for idx, task in enumerate(tasks):
             # would hit the limit of length 2000
             #  if idx:
             #      table += table_delimeter
@@ -142,6 +151,7 @@ class Escape(Cog_extension):
 
             row = table_row.format(
                 task_id=task['task_id'],
+                width=max_task_id_length,
                 point=task['point']
             )
 
