@@ -294,9 +294,15 @@ def get_scoreboard() -> Tuple[Union[None, Dict[int, Dict[str, int]]], Error]:
         tasks = get_all_tasks()
         table = {i: {task['task_id']: 0 for task in tasks} for i in range(1, 10)}
 
+        if rows is None:
+            return (table, None)
+
         for row in rows:
             group_id, task_id, success_count, fail_count = row
             task = get_task_by_id(task_id)
+
+            if task is None:
+                continue
 
             status = 0
             if 'max_attempt' in task and fail_count >= task['max_attempt']:
