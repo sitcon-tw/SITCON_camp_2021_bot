@@ -1,8 +1,16 @@
 import json
 import re
+from os import getenv
 
-with open('setting.json', mode='r', encoding='utf-8') as jfile:
-    jdata = json.load(jfile)
+IS_DEV = getenv('DEV')
+
+if IS_DEV:
+    with open('setting.dev.json', mode='r', encoding='utf-8') as jfile:
+        jdata = json.load(jfile)
+else:
+    with open('setting.json', mode='r', encoding='utf-8') as jfile:
+        jdata = json.load(jfile)
+
 
 CONFIG = {
     'TOKEN': jdata['TOKEN'],
@@ -18,7 +26,7 @@ CONFIG = {
     'ESCAPE_END': jdata['ESCAPE_END'],
 }
 
-#  if re.match(r"")
+
 pattern = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
 if re.match(pattern, CONFIG['ESCAPE_START']) is None \
         or re.match(pattern, CONFIG['ESCAPE_END']) is None \

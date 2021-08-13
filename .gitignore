@@ -147,4 +147,5 @@ cython_debug/
 grades.json
 pointCode.json
 setting.json
+setting.dev.json
 escape_room_task.json
