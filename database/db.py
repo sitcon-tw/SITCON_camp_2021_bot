@@ -173,6 +173,10 @@ def get_group_point() -> Tuple[Union[List[Dict[str, int]], None], Error]:
 
             for row in rows:
                 task = get_task_by_id(row[1])
+
+                if task is None:
+                    continue
+
                 score[row[0]]['escape'] += task['point']
 
     except sqlite3.Error as err:
