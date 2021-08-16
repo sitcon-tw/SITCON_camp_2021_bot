@@ -133,7 +133,7 @@ class Escape(Cog_extension):
 
         table_row = ' {task_id:^{width}}  {point:^5}   '
 
-        #  table_delimeter = '──────────────────────────────────────────────────────────────────'
+        #  table_delimiter = '──────────────────────────────────────────────────────────────────'
 
         #  table_footer = '══════════════════════════════════════════════════════════════════```'
         table_footer = '```'
@@ -141,7 +141,7 @@ class Escape(Cog_extension):
         for idx, task in enumerate(tasks):
             # would hit the limit of length 2000
             #  if idx:
-            #      table += table_delimeter
+            #      table += table_delimiter
 
             if 'available_after' in task:
                 now = datetime.now()

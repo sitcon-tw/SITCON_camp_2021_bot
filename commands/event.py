@@ -199,7 +199,7 @@ class Event(Cog_extension):
 ║ Group │ Code Point │ Event Point │  Total  ║
 ╠═══════╪════════════╪═════════════╪═════════╣
 '''
-            table_delimeter = '╠═══════╪════════════╪═════════════╪═════════╣\n'
+            table_delimiter = '╠═══════╪════════════╪═════════════╪═════════╣\n'
             table_row = '║   {group_id}   │ {code:^10} │ {escape:^11} │ {total:^7} ║\n'
             table_footer = '╚═══════╧════════════╧═════════════╧═════════╝```'
         else:
@@ -213,14 +213,14 @@ class Event(Cog_extension):
 ║ Group │ Code Point │  Total  ║
 ╠═══════╪════════════╪═════════╣
 '''
-            table_delimeter = '╠═══════╪════════════╪═════════╣\n'
+            table_delimiter = '╠═══════╪════════════╪═════════╣\n'
             table_row = '║   {group_id}   │ {code:^10} │ {total:^7} ║\n'
             table_footer = '╚═══════╧════════════╧═════════╝```'
 
         res.sort(key=sort_key, reverse=True)
         for idx, data in enumerate(res):
             if idx:
-                table += table_delimeter
+                table += table_delimiter
 
             table += table_row.format(
                 group_id=data['group'],
